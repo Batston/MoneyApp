@@ -1,11 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35527.113 d17.12
+VisualStudioVersion = 17.12.35527.113
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoneyApp.Server", "MoneyApp.Server\MoneyApp.Server.csproj", "{6DFBB24F-70CC-4C57-BBA9-7E4AAE45C3C2}"
-EndProject
-Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "moneyapp.client", "moneyapp.client\moneyapp.client.esproj", "{F438CA61-1130-40EE-A828-E5187DF8C174}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoneyApp.Server", "MoneyApp.Server\MoneyApp.Server.csproj", "{EF9BB48F-BB0C-4FE1-B130-2721DC38D3B3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,16 +11,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{6DFBB24F-70CC-4C57-BBA9-7E4AAE45C3C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6DFBB24F-70CC-4C57-BBA9-7E4AAE45C3C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6DFBB24F-70CC-4C57-BBA9-7E4AAE45C3C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6DFBB24F-70CC-4C57-BBA9-7E4AAE45C3C2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F438CA61-1130-40EE-A828-E5187DF8C174}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F438CA61-1130-40EE-A828-E5187DF8C174}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F438CA61-1130-40EE-A828-E5187DF8C174}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
-		{F438CA61-1130-40EE-A828-E5187DF8C174}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F438CA61-1130-40EE-A828-E5187DF8C174}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F438CA61-1130-40EE-A828-E5187DF8C174}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{EF9BB48F-BB0C-4FE1-B130-2721DC38D3B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF9BB48F-BB0C-4FE1-B130-2721DC38D3B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF9BB48F-BB0C-4FE1-B130-2721DC38D3B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF9BB48F-BB0C-4FE1-B130-2721DC38D3B3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
