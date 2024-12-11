@@ -11,7 +11,7 @@ namespace MoneyApp.Server.Models
         public string Username { get; set; }
         
         [Required]
-        public string Password { get; set; }
+        public string PasswordHash { get; set; }
         
         [Required]
         public string FullName { get; set; }
@@ -20,6 +20,6 @@ namespace MoneyApp.Server.Models
         public string Email { get; set; }
 
         [DisplayFormat(DataFormatString ="{0:dd-MM-yyyy}")]
-        public DateTime CreateDate { get; set; }
+        public DateTime CreatedDate { get; set; }
     }
 }
