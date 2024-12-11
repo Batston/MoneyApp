@@ -9,7 +9,14 @@
       <!-- Form đăng nhập đặt giữa màn hình -->
       <v-sheet class="login-form" elevation="4">
         <div class="text-center mb-4">
-          <img src="/logo.png" alt="Logo" style="width: 50px; height: 50px;" />
+          <!-- <img src="../moneyLogo.png" alt="Logo" style="width: 500px; height: 500px;" /> -->
+          <v-img
+            :aspect-ratio="1"
+            class="bg-white mx-auto"
+            src="../assets/moneyLogo.png"
+            width="100"
+            cover
+          ></v-img>
           <h2 class="font-weight-bold mt-2" style="color: #00710F;">Money Lover</h2>
         </div>
         <div class="text-center mb-4">
@@ -18,9 +25,10 @@
         <v-form>
           <v-text-field
             v-model="userName"
-            label="Email"
+            label="Username"
             outlined
             dense
+            variant="underlined"
             class="mb-4"
           ></v-text-field>
           <v-text-field
@@ -28,17 +36,18 @@
             label="Password"
             outlined
             dense
+            variant="underlined"
             type="password"
             class="mb-4"
           ></v-text-field>
-          <v-btn block color="primary" elevation="0" class="mb-3" @click="userLogin" style="background-color: #00710F; color: white;">
+          <v-btn height="48" :loading="isloading" block color="#00710F" elevation="2" class="mb-3" @click="userLogin">
             LOGIN
           </v-btn>
         </v-form>
-        <div class="d-flex justify-space-between">
+        <!-- <div class="d-flex justify-space-between">
           <v-btn text small @click="forgotPassword" style="color: #00710F;">Forgot Password</v-btn>
           <v-btn text small to="/register" style="color: #00710F;">Register</v-btn>
-        </div>
+        </div> -->
         <div v-if="loginError" class="text-center mt-4 mb-2 error--text">{{ loginError }}</div>
       </v-sheet>
     </div>
@@ -53,10 +62,14 @@
       userName: "",
       userPass: "",
       loginError: "",
+      isloading: false,
     }),
   
     methods: {
       userLogin() {
+        this.isloading = true
+        setTimeout(() => (this.isloading = false), 3000)
+
         axios
           .post("/user/login", {
             UserName: this.userName,
