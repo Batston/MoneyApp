@@ -24,7 +24,14 @@ namespace MoneyApp.Server.Controllers
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginResquest loginResquest)
         {
-            var user = _context.Users.SingleOrDefault(u => u.Username == loginResquest.Username);
+            //example:
+            //
+            //  {
+            //      "username": "string",
+            //      "password": "string"
+            //  }
+            
+        var user = _context.Users.SingleOrDefault(u => u.Username == loginResquest.Username);
 
             if (user == null && VerifyPassword(loginResquest.Password, user.PasswordHash))
             {
@@ -66,6 +73,17 @@ namespace MoneyApp.Server.Controllers
         [HttpPost("register")]
         public IActionResult Register([FromBody] User newUser)
         {
+            // userId luon luon 0
+            //Example: 
+            //
+            //  {
+            //      "userId": 0,
+            //      "username": "string", 
+            //      "passwordHash": "string",
+            //      "fullName": "string",
+            //      "email": "user@example.com", 
+            //  }
+
             var isExist = _context.Users.SingleOrDefault(u => u.Username == newUser.Username);
 
             if (isExist != null)
