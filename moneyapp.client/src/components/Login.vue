@@ -48,8 +48,65 @@
           <v-btn text small @click="forgotPassword" style="color: #00710F;">Forgot Password</v-btn>
           <v-btn text small to="/register" style="color: #00710F;">Register</v-btn>
         </div> -->
+        <div class="d-flex justify-center">
+          <p class="small fw-bold mt-2 pt-1 mb-0">Don't have an account? <a style="color: #00710F;" href="#!"
+            class="link-danger" @click="showRegisterDialog=true">Register</a></p>
+        </div>
         <div v-if="loginError" class="text-center mt-4 mb-2 error--text">{{ loginError }}</div>
       </v-sheet>
+      <!-- Register Dialog -->
+    <v-dialog v-model="showRegisterDialog" persistent max-width="500px">
+      <v-card>
+        <v-card-title class="headline d-flex justify-center">Register</v-card-title>
+        <v-card-text>
+          <v-form>
+          <v-text-field
+            v-model="usernameRegister"
+            label="Username"
+            outlined
+            dense
+            variant="underlined"
+            class="mb-4"
+          ></v-text-field>
+          <v-text-field
+            v-model="passwordRegister"
+            label="Password"
+            outlined
+            dense
+            variant="underlined"
+            type="password"
+            class="mb-4"
+          ></v-text-field>
+          <v-text-field
+            v-model="fullname"
+            label="fullname"
+            outlined
+            dense
+            variant="underlined"
+            type="text"
+            class="mb-4"
+          ></v-text-field>
+          <v-text-field
+            v-model="email"
+            label="email"
+            outlined
+            dense
+            variant="underlined"
+            type="email"
+            class="mb-4"
+          ></v-text-field>
+          <v-btn height="48" :loading="isloading" block color="#00710F" elevation="2" class="mb-3" @click="registerUser">
+            Register
+          </v-btn>
+          <v-btn color="grey" text @click="showRegisterDialog = false">Cancel</v-btn>
+        </v-form>
+        </v-card-text>
+        <!-- <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="#00710F" text @click="registerUser">Register</v-btn>
+        </v-card-actions> -->
+        </v-card>
+      </v-dialog>
     </div>
   </template>
   
@@ -59,6 +116,13 @@
   export default {
     name: "LoginComponent",
     data: () => ({
+      showRegisterDialog: false,
+      
+      fullname: "",
+      usernameRegister: "",
+      email: "",
+      passwordRegister: "",
+
       userName: "",
       userPass: "",
       loginError: "",
@@ -87,6 +151,27 @@
       forgotPassword() {
         console.log("Forgot password clicked");
       },
+      registerUser() {
+        this.isloading = true
+        setTimeout(() => (this.isloading = false), 3000)
+
+        axios
+          .post("/User/register", {
+              "userId": 0,
+              "username": this.usernameRegister, 
+              "passwordHash": this.passwordRegister,
+              "fullName": this.fullname,
+              "email": this.email,
+          })
+          .then((response) => {
+            console.log(response.data);
+            alert("Đăng ký thành công!");
+            this.showRegisterDialog = false;
+          })
+          .catch((error) => {
+            this.loginError = error.response.data.message;
+          });
+      }
     },
   };
   </script>
@@ -124,6 +209,10 @@
     border-radius: 12px;
     background-color: white;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  .register {
+    font-size: 14px;
+    text-decoration: underline;
   }
   </style>
   
