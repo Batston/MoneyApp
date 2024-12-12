@@ -7,5 +7,7 @@ namespace MoneyApp.Server.Data
     {
         public DBContext(DbContextOptions<DBContext> options) : base(options) { }
         public DbSet<User> Users { get; set; } 
+        public DbSet<Transaction> Transactions { get; set; }
+        public DbSet<Wallet> Wallets { get; set; }
     }
 }

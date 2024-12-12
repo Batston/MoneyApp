@@ -27,13 +27,14 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = "yourdomain.com",
-        ValidAudience = "yourdomain.com",
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("YourSuperSecretKey123"))
+        ValidIssuer = "http://localhost",
+        ValidAudience = "moneyapp api",
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("anthing_api_key_you_want_anthing_api_key_you_want_anthing_api_key_you_want"))
     };
 });
 
 builder.Services.AddAuthorization();
+
 builder.Services.AddControllers();
 builder.Services.AddCors(options =>
     {
@@ -46,7 +47,10 @@ builder.Services.AddCors(options =>
             });
     });
 
-
+builder.Services.AddLogging(logging =>
+{
+    logging.AddConsole(); // Thêm logging ra Console
+});
 
 var app = builder.Build();
 
@@ -59,6 +63,7 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowAllOrigins");
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
