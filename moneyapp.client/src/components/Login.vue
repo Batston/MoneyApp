@@ -71,9 +71,9 @@
         setTimeout(() => (this.isloading = false), 3000)
 
         axios
-          .post("/user/login", {
-            UserName: this.userName,
-            PassWord: this.userPass,
+          .post("/User/login", {
+            username: this.userName,
+            password: this.userPass,
           })
           .then((response) => {
             console.log(response.data);
