@@ -8,7 +8,7 @@ using System.Transactions;
 
 namespace MoneyApp.Server.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class TransactionController : ControllerBase
     {
