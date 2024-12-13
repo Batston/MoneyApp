@@ -40,7 +40,7 @@
             type="password"
             class="mb-4"
           ></v-text-field>
-          <v-btn height="48" :loading="isloading" block color="#00710F" elevation="2" class="mb-3" @click="userLogin">
+          <v-btn height="48" :loading="isloading" block color="#00710F" elevation="2" class="mb-3" @click="userLogin(); getUserId()">
             LOGIN
           </v-btn>
         </v-form>
@@ -55,58 +55,61 @@
         <div v-if="loginError" class="text-center mt-4 mb-2 error--text">{{ loginError }}</div>
       </v-sheet>
       <!-- Register Dialog -->
-    <v-dialog v-model="showRegisterDialog" persistent max-width="500px">
-      <v-card>
-        <v-card-title class="headline d-flex justify-center">Register</v-card-title>
-        <v-card-text>
-          <v-form>
-          <v-text-field
-            v-model="usernameRegister"
-            label="Username"
-            outlined
-            dense
-            variant="underlined"
-            class="mb-4"
-          ></v-text-field>
-          <v-text-field
-            v-model="passwordRegister"
-            label="Password"
-            outlined
-            dense
-            variant="underlined"
-            type="password"
-            class="mb-4"
-          ></v-text-field>
-          <v-text-field
-            v-model="fullname"
-            label="fullname"
-            outlined
-            dense
-            variant="underlined"
-            type="text"
-            class="mb-4"
-          ></v-text-field>
-          <v-text-field
-            v-model="email"
-            label="email"
-            outlined
-            dense
-            variant="underlined"
-            type="email"
-            class="mb-4"
-          ></v-text-field>
-          <v-btn height="48" :loading="isloading" block color="#00710F" elevation="2" class="mb-3" @click="registerUser">
-            Register
-          </v-btn>
-          <v-btn color="grey" text @click="showRegisterDialog = false">Cancel</v-btn>
-        </v-form>
-        </v-card-text>
-        <!-- <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="#00710F" text @click="registerUser">Register</v-btn>
-        </v-card-actions> -->
+      <v-dialog transition="dialog-bottom-transition" persistent v-model="showRegisterDialog" max-width="500px">
+        <v-card>
+          <v-card-title class="headline d-flex justify-center">Register</v-card-title>
+          <v-card-text>
+            <v-form>
+              <v-text-field
+                v-model="usernameRegister"
+                label="Username"
+                outlined
+                dense
+                variant="underlined"
+                class="mb-4"
+              ></v-text-field>
+              <v-text-field
+                v-model="passwordRegister"
+                label="Password"
+                outlined
+                dense
+                variant="underlined"
+                type="password"
+                class="mb-4"
+              ></v-text-field>
+              <v-text-field
+                v-model="fullname"
+                label="Full Name"
+                outlined
+                dense
+                variant="underlined"
+                type="text"
+                class="mb-4"
+              ></v-text-field>
+              <v-text-field
+                v-model="email"
+                label="Email"
+                outlined
+                dense
+                variant="underlined"
+                type="email"
+                class="mb-4"
+              ></v-text-field>
+              <v-btn
+                height="48"
+                :loading="isloading"
+                block
+                color="#00710F"
+                elevation="2"
+                @click="registerUser"
+              >
+                Register
+              </v-btn>
+            </v-form>
+          </v-card-text>
         </v-card>
       </v-dialog>
+
     </div>
   </template>
   
@@ -142,10 +145,21 @@
           .then((response) => {
             console.log(response.data);
             localStorage.setItem("auth", response.data.token);
-            location = "/home";
+            this.$router.push('/home'); // Chuyển hướng đến Home
+            // location = "/home";
           })
           .catch((error) => {
             this.loginError = error.response.data.message;
+          });
+      },
+      getUserId() {
+        axios.get("/user")
+          .then((res) => {
+            console.log(res.data.userId);
+            localStorage.setItem("userId", res.data.userId);
+          })
+          .catch((error) => {
+            console.error("Lỗi lấy User ID:", error.response?.data || error.message);
           });
       },
       forgotPassword() {
