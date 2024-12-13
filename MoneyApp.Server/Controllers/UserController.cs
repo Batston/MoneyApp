@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using MoneyApp.Server.Data;
 using MoneyApp.Server.Models;
@@ -17,6 +18,17 @@ namespace MoneyApp.Server.Controllers
         public UserController(DBContext context)
         {
             _context = context;
+        }
+
+        [HttpGet]
+        [Authorize]
+        public IActionResult Get()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null) 
+                return Unauthorized("Chưa xác thực người dùng!");
+
+            return Ok(int.Parse(userId));
         }
 
         [HttpPost("login")]
