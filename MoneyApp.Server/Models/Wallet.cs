@@ -10,8 +10,8 @@ namespace MoneyApp.Server.Models
         public int UserId { get; set; }
         [Required]
         public string WalletName { get; set; }  
-        public decimal Balance { get; set; }    
-        public string Currency { get; set; }
+        public decimal Balance { get; set; }
+        public string Currency { get; set; } = "VND";
         public DateTime CreatedDate { get; set; } = DateTime.Now;
     }
 }

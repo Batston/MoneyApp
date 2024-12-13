@@ -22,7 +22,7 @@ namespace MoneyApp.Server.Controllers
 
         [HttpGet]
         [Authorize]
-        public IActionResult Get()
+        public IActionResult GetIdByToken()
         {
             var UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (UserId == null) 

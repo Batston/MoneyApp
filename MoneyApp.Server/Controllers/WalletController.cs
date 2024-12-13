@@ -31,6 +31,23 @@ namespace MoneyApp.Server.Controllers
             return Ok(result);
         }
 
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> AddWallet([FromBody] Wallet newWallet)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (userId == null)
+                return Unauthorized(new {Message = "Người dùng không hợp lệ!"});
+
+            if (newWallet.UserId != int.Parse(userId))
+                return StatusCode(403, new { Message = "Người dùng không có quyền thêm ví!" });
+
+            _context.Wallets.Add(newWallet);
+            await _context.SaveChangesAsync();
+            return Ok(new { Message = "Thêm ví thành công!"});
+        }
+
         [HttpDelete("{id}")]
         [Authorize]
         public async Task<IActionResult> DeleteWallet(int id)
