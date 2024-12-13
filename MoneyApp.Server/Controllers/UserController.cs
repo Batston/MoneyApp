@@ -24,11 +24,11 @@ namespace MoneyApp.Server.Controllers
         [Authorize]
         public IActionResult Get()
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (userId == null) 
+            var UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (UserId == null) 
                 return Unauthorized("Chưa xác thực người dùng!");
 
-            return Ok(int.Parse(userId));
+            return Ok(new { UserId = int.Parse(UserId) });
         }
 
         [HttpPost("login")]
