@@ -14,7 +14,7 @@ export const getWallet = async () => {
 // Thêm ví mới
 export const addWallet = async (newWallet) => {
     try {
-        const response = await instance.post('/wallet', newWallet);
+        const response = await instance.post('/Wallet', newWallet);
         return response.data;
     } catch (error) {
         console.error('Error adding wallet:', error);

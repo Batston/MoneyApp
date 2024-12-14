@@ -40,7 +40,7 @@
             type="password"
             class="mb-4"
           ></v-text-field>
-          <v-btn height="48" :loading="isloading" block color="#00710F" elevation="2" class="mb-3" @click="userLogin(); getUserId()">
+          <v-btn height="48" :loading="isloading" block color="#00710F" elevation="2" class="mb-3" @click="userLogin">
             LOGIN
           </v-btn>
         </v-form>
@@ -145,23 +145,29 @@
           .then((response) => {
             console.log(response.data);
             localStorage.setItem("auth", response.data.token);
-            this.$router.push('/home'); // Chuyển hướng đến Home
+            // this.$router.push('/home'); // Chuyển hướng đến Home
             // location = "/home";
+            // Lấy userId từ token và lưu vào localStorage
+            return axios.get("/User").then((res) => {
+              const userId = res.data.userId;
+              localStorage.setItem("userId", userId);
+              location = "/home"; // Chuyển hướng tới Home
+            });
           })
           .catch((error) => {
             this.loginError = error.response.data.message;
           });
       },
-      getUserId() {
-        axios.get("/user")
-          .then((res) => {
-            console.log(res.data.userId);
-            localStorage.setItem("userId", res.data.userId);
-          })
-          .catch((error) => {
-            console.error("Lỗi lấy User ID:", error.response?.data || error.message);
-          });
-      },
+      // getUserId() {
+      //   axios.get("/user")
+      //     .then((res) => {
+      //       console.log(res.data.userId);
+      //       localStorage.setItem("userId", res.data.userId);
+      //     })
+      //     .catch((error) => {
+      //       console.error("Lỗi lấy User ID:", error.response?.data || error.message);
+      //     });
+      // },
       forgotPassword() {
         console.log("Forgot password clicked");
       },

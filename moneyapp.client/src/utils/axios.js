@@ -7,7 +7,6 @@ if (auth == '') location = 'http://localhost:8080/login';
 const instance = axios.create({
     baseURL: 'http://localhost:5039',
     headers: { Authorization: 'Bearer ' + auth }
-    
 });
 
 instance.interceptors.request.use(function (config) {

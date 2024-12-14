@@ -121,12 +121,15 @@
 <script>
   import axios from "../utils/axios";
   import { getWallet, addWallet } from "@/utils/walletApi";
+  import { getTransactions } from "@/utils/transactionApi";
+
   export default {
     name: "HomeComponent",
     data: () => ({
       showAddWallet: false,
       drawer: false,
       showTotal: true,
+      IdNguoiDung: '',
       totalAmount: "", // Giả lập số dư tổng cộng
       transactions: [],
       wallets: [],
@@ -138,7 +141,7 @@
       drawerItems: ["Sổ giao dịch", "Ngân sách", "Tài khoản"],
     }),
     mounted() {
-      this.getTransactions();
+      this.fetchTransactions();
       this.fetchWallets();
     },
     methods: {
@@ -146,30 +149,33 @@
         this.showAddWallet = true;
       },
       // Xử lý thêm ví mới
-    async handleAddWallet() {
-      try {
-        if (this.newWallet.name && this.newWallet.balance) {
-          this.newWallet.userId = localStorage.getItem('userId');
-          // Gọi hàm addWallet từ API
-          const response = await addWallet({
-            userId: this.newWallet.userId,
-            walletName: this.newWallet.name,
-            balance: parseFloat(this.newWallet.balance)
-          });
+      async handleAddWallet() {
+        console.log('Auth token:', localStorage.getItem('auth'));
 
-          // Nếu thêm ví thành công, thêm vào danh sách và đóng dialog
-          this.wallets.push(response); // Thêm ví mới vào danh sách ví
-          this.dialog = false; // Đóng dialog
-          this.newWallet.name = '';
-          this.newWallet.balance = '';
-        } else {
-          alert('Vui lòng nhập đầy đủ thông tin ví!');
+        try {
+          if (this.newWallet.name && this.newWallet.balance) {
+            this.newWallet.userId = localStorage.getItem('userId');
+            console.log('newwallet: ',this.newWallet.userId)
+            // Gọi hàm addWallet từ API
+            const response = await addWallet({
+              userId: this.newWallet.userId,
+              WalletName: this.newWallet.name,
+              balance: parseFloat(this.newWallet.balance)
+            });
+
+            // Nếu thêm ví thành công, thêm vào danh sách và đóng dialog
+            this.wallets.push(response); // Thêm ví mới vào danh sách ví
+            this.dialog = false; // Đóng dialog
+            this.newWallet.name = '';
+            this.newWallet.balance = '';
+          } else {
+            alert('Vui lòng nhập đầy đủ thông tin ví!');
+          }
+        } catch (error) {
+          console.error('Error adding wallet:', error);
+          alert('Có lỗi khi thêm ví. Vui lòng thử lại.');
         }
-      } catch (error) {
-        console.error('Error adding wallet:', error);
-        alert('Có lỗi khi thêm ví. Vui lòng thử lại.');
-      }
-    },
+      },
       // Lấy danh sách ví
       async fetchWallets() {
         try {
@@ -181,23 +187,26 @@
           this.message = 'Không thể lấy thông tin ví!';
         }
       },
-      getTransactions() {
-        const userId = localStorage.getItem('userId'); // Lấy userId từ localStorage
-        console.log(userId);
-        if (userId) {
-            axios
-              .get(`/Transaction/${userId}`) // Truyền userId vào URL
-              .then((res) => {
-                console.log("Kết quả API:", res);
-                this.transactions = res.data; // Gán kết quả trả về
-              })
-              .catch((error) => {
-                console.error("Lỗi khi lấy dữ liệu giao dịch:", error);
-              });
-        } else {
+      async fetchTransactions() {
+        try {
+          const res = await axios.get("/User");
+          console.log("UserId:", res.data.userId);
+          this.IdNguoiDung = res.data.userId; // Gán vào biến trong component
+
+          if (this.IdNguoiDung) {
+            console.log("Fetching transactions for userId:", this.IdNguoiDung);
+            const response = await getTransactions(this.IdNguoiDung); // Gọi API từ transactionApi.js
+            console.log("Kết quả API:", response);
+            this.transactions = response; // Gán kết quả trả về vào danh sách giao dịch
+          } else {
             console.error("User ID không tồn tại");
+          }
+        } catch (error) {
+          console.error("Lỗi khi lấy UserId hoặc dữ liệu giao dịch:", error.response?.data || error.message);
         }
       },
+
+
 
       formatCurrency(amount) {
         return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(amount);
@@ -211,7 +220,7 @@
         // Xử lý điều hướng hoặc hành động tương ứng
       },
     },
-  };
+}
 </script>
 
 <style scoped>
