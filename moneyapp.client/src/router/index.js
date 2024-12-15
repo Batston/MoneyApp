@@ -31,8 +31,10 @@ router.beforeEach((to, from, next) => {
 
     if (to.meta.requiresAuth && !isAuthenticated) {
         // Nếu cần đăng nhập mà chưa đăng nhập, điều hướng về trang login
+        alert('Bạn cần đăng nhập trước khi truy cập trang này');
         next('/login');
-    } else {
+    }
+    else {
         // Nếu đã đăng nhập hoặc không cần bảo mật, cho phép điều hướng
         next();
     }
