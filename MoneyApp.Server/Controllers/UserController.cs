@@ -34,7 +34,7 @@ namespace MoneyApp.Server.Controllers
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginResquest loginResquest)
         {
-            //example:
+            //example
             //
             //  {
             //      "username": "string",
