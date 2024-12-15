@@ -1,6 +1,15 @@
-@MoneyApp.Server_HostAddress = http://localhost:5039
+@MoneyApp.Server_HostAddress = https://localhost:7029
 
 GET {{MoneyApp.Server_HostAddress}}/weatherforecast/
 Accept: application/json
+
+###
+
+POST {{MoneyApp.Server_HostAddress}}/user/login
+Content-Type: application/json
+
+{
+  //LoginResquest
+}
 
 ###

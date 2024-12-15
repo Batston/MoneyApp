@@ -26,7 +26,7 @@ namespace MoneyApp.Server.Controllers
         {
             var UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (UserId == null) 
-                return Unauthorized("Chưa xác thực người dùng!");
+                return Unauthorized(new { Message = "Chưa xác thực người dùng!" });
 
             return Ok(new { UserId = int.Parse(UserId) });
         }
@@ -45,11 +45,11 @@ namespace MoneyApp.Server.Controllers
 
             if (user == null)
             {
-                return Unauthorized("Invalid username or password");
+                return Unauthorized( new { Message = "Invalid username" });
             }
             else if (VerifyPassword(loginResquest.Password, user.PasswordHash) == false)
             {
-                return Unauthorized("Password is not correct!");
+                return Unauthorized( new { Message = "Password is not correct!" });
             }
 
             var token = GenerateJwtToken(user);
