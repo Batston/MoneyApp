@@ -43,9 +43,13 @@ namespace MoneyApp.Server.Controllers
             
         var user = _context.Users.SingleOrDefault(u => u.Username == loginResquest.Username);
 
-            if (user == null && VerifyPassword(loginResquest.Password, user.PasswordHash))
+            if (user == null)
             {
                 return Unauthorized("Invalid username or password");
+            }
+            else if (VerifyPassword(loginResquest.Password, user.PasswordHash) == false)
+            {
+                return Unauthorized("Password is not correct!");
             }
 
             var token = GenerateJwtToken(user);
@@ -76,7 +80,6 @@ namespace MoneyApp.Server.Controllers
 
         private bool VerifyPassword(string password, string passwordHash)
         {
-            // Hash password nhập vào và so sánh với hash lưu trong DB
             return BCrypt.Net.BCrypt.Verify(password, passwordHash);
         }
 
