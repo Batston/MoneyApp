@@ -22,10 +22,16 @@ namespace MoneyApp.Server.Controllers
             _context = context;
         }
 
-        [HttpGet("{id}")]
+        [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetTransactions(int id)
+        public async Task<IActionResult> GetTransactions()
         {
+            var UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (UserId == null)
+                return Unauthorized(new { Message = "Người dùng không hợp lệ" });
+
+            int id = int.Parse(UserId);
+            
             var transactionsWithUser = await (from transaction in _context.Transactions
                                               join wallet in _context.Wallets
                                               on transaction.WalletID equals wallet.WalletID
