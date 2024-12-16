@@ -2,10 +2,12 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using MoneyApp.Server.Data;
 using MoneyApp.Server.Models;
 using System.Security.Claims;
 using System.Transactions;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using Transaction = MoneyApp.Server.Models.Transaction;
 
 namespace MoneyApp.Server.Controllers
@@ -58,13 +60,40 @@ namespace MoneyApp.Server.Controllers
                 return BadRequest(new { Message = "Danh mục không hợp lệ!" });
 
             if (isWalletExist.Balance < transaction.Amount)
-                return BadRequest(new { Message = "Số  dư ví không đủ để thực hiện giao dịch!" });
+                return BadRequest(new { Message = "Số dư ví không đủ để thực hiện giao dịch!" });
             else 
                 isWalletExist.Balance -= transaction.Amount;
 
             await _context.Transactions.AddAsync(transaction);
             await _context.SaveChangesAsync();
             return Ok( new { Message = "Thêm giao  dịch thành công!"});
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteTransaction(int id)
+        {
+            var UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            int userId = int.Parse(UserId);
+
+            if (UserId == null)
+                return Unauthorized(new { Message = "Người dùng không hợp lệ!" });
+
+            var transaction = await _context.Transactions.FindAsync(id);
+
+            if (transaction == null)
+                return NotFound(new { Message = "Không tìm thấy giao dịch này!" });
+
+            var isWalletExist = await _context.Wallets.FirstOrDefaultAsync(w => w.UserId == userId && w.WalletID == transaction.WalletID);
+
+            if (isWalletExist == null)
+                return StatusCode(403, new { Message = "Người dùng không có quyền xóa giao dịch này!" });
+
+            isWalletExist.Balance += transaction.Amount;
+            await _context.SaveChangesAsync();
+
+            return Ok(new { Message = "Xóa giao dịch thành công!" });
         }
     }
 }
