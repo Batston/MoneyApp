@@ -36,7 +36,7 @@
 
       <!-- Main Content -->
       <v-main>
-        <v-container fluid>
+        <v-container fluid style="height: 100%">
           <v-row>
             <!-- Layout 1: Báo cáo thống kê -->
             <v-col cols="12" md="6">
@@ -89,20 +89,17 @@
           <!-- Layout 3: Danh sách ví -->
           <v-row>
             <v-col cols="12">
-              <v-card hover elevation="1">
+              <v-card hover elevation="1" style="height: 100%;" class="m-h-full fill-height">
                 <div class="d-flex align-center" style="border-bottom: 1px solid #00710F; padding-bottom: 8px;">
                   <v-card-title class="mr-auto">Danh sách ví</v-card-title>
                   <v-btn rounded="lg" class="text-right" color="#00710F" style="padding: 8px 16px; margin-right: 16px;" @click="openAddWallet">
                     <v-icon left>mdi-plus</v-icon> 
-                    Thêm ví
                   </v-btn>
                   <v-btn :disabled="this.disablebtn" rounded="lg" class="text-right" color="#00710F" style="padding: 8px 16px; margin-right: 16px;" @click="handleDeleteWallet(this.IdWallet)">
                     <v-icon left>mdi-delete</v-icon> 
-                    Xóa ví
                   </v-btn>
                   <v-btn :disabled="this.disablebtn" rounded="lg" class="text-right" color="#00710F" style="padding: 8px 16px; margin-right: 16px;" @click="updateWallet">
                     <v-icon left>mdi-wrench</v-icon> 
-                    Sửa ví
                   </v-btn>
                 </div>
                 <v-card-text>
