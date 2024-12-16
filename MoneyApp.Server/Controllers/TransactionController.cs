@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoneyApp.Server.Data;
 using MoneyApp.Server.Models;
+using System.Security.Claims;
 using System.Transactions;
+using Transaction = MoneyApp.Server.Models.Transaction;
 
 namespace MoneyApp.Server.Controllers
 {
@@ -32,6 +34,27 @@ namespace MoneyApp.Server.Controllers
                                               }
                                               ).ToListAsync();
             return Ok(transactionsWithUser);
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> AddTransaction([FromBody] Transaction transaction)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if(userId == null)
+                return Unauthorized( new { Message = "Người dùng không hợp lệ!"});
+
+            int id = int.Parse(userId);
+
+            var isWalletExist = await _context.Wallets.FirstOrDefaultAsync(w => w.UserId == id && w.WalletID == transaction.WalletID);
+
+            if (isWalletExist == null)
+                return NotFound(new { Message = "Người dùng không được thực hiện giao dịch trên ví này!" });
+
+            await _context.Transactions.AddAsync(transaction);
+            await _context.SaveChangesAsync();
+            return Ok( new { Message = "Thêm giao  dịch thành công!"});
         }
     }
 }
