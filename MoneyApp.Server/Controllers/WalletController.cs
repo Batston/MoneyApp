@@ -97,7 +97,10 @@ namespace MoneyApp.Server.Controllers
             if (wallet.UserId != int.Parse(userId))
                 return StatusCode(403 ,new {Message = "Người dùng không có quyền thực hiện yều cầu này!"});
 
+            var transaction = await _context.Transactions.Where(t => t.WalletID == wallet.WalletID).ToListAsync();
+
             _context.Wallets.Remove(wallet);
+            _context.Transactions.RemoveRange(transaction);
             await _context.SaveChangesAsync();
 
             return Ok(new { Message = "Xóa ví thành công!" }); 
