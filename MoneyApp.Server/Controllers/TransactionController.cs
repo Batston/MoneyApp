@@ -57,6 +57,11 @@ namespace MoneyApp.Server.Controllers
             if (isCategoryCorrect == null)
                 return BadRequest(new { Message = "Danh mục không hợp lệ!" });
 
+            if (isWalletExist.Balance < transaction.Amount)
+                return BadRequest(new { Message = "Số  dư ví không đủ để thực hiện giao dịch!" });
+            else 
+                isWalletExist.Balance -= transaction.Amount;
+
             await _context.Transactions.AddAsync(transaction);
             await _context.SaveChangesAsync();
             return Ok( new { Message = "Thêm giao  dịch thành công!"});
