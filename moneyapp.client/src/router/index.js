@@ -1,8 +1,15 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import LoginComponent from '../components/Login.vue';
 import HomeComponent from '../components/Home.vue';
+import Transaction from '@/components/Transaction.vue';
 
 const routes = [
+    {
+        path: '/transaction',
+        name: 'TransactionComponent',
+        component: Transaction,
+        meta: { requiresAuth: true }
+    },
     {
         path: '/home',
         name: 'HomeComponent',
