@@ -52,6 +52,11 @@ namespace MoneyApp.Server.Controllers
             if (isWalletExist == null)
                 return NotFound(new { Message = "Người dùng không được thực hiện giao dịch trên ví này!" });
 
+            var isCategoryCorrect = await _context.Categories.FindAsync(transaction.CategoryID);
+
+            if (isCategoryCorrect == null)
+                return BadRequest(new { Message = "Danh mục không hợp lệ!" });
+
             await _context.Transactions.AddAsync(transaction);
             await _context.SaveChangesAsync();
             return Ok( new { Message = "Thêm giao  dịch thành công!"});
