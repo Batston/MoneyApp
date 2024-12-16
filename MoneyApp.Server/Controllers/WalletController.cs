@@ -55,25 +55,27 @@ namespace MoneyApp.Server.Controllers
             return Ok(new { Message = "Thêm ví thành công!"});
         }
 
-        [HttpPut("{id}")]
+        [HttpPut]
         [Authorize]
-        public async Task<IActionResult> UpdateWallet(int id, [FromBody] Wallet updateWallet)
+        public async Task<IActionResult> UpdateWallet([FromBody] Wallet updateWallet)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (userId == null)
                 return Unauthorized(new { Message = "Người dùng không hợp lệ!" });
 
-            else if (updateWallet.UserId != int.Parse(userId))
-                return StatusCode(403, new { Message = "Người dùng không có quyền sửa ví này!" });
+            var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.WalletID == updateWallet.WalletID);
 
-            else if (id == null)
+            if (wallet == null)
                 return NotFound(new { Message = "Ví người dùng muốn sửa không tồn tại!" });
 
-            else if (id != updateWallet.WalletID)
-                return BadRequest(new { Message = "Thông tin không hợp lệ!" });
+            if (wallet.UserId != int.Parse(userId) || updateWallet.WalletID != wallet.WalletID)
+                return StatusCode(403, new { Message = "Người dùng không có quyền sửa ví này!" });
 
-            _context.Wallets.Update(updateWallet);
+            wallet.Balance = updateWallet.Balance;
+            wallet.WalletName = updateWallet.WalletName;
+
+            _context.Wallets.Update(wallet);
             await _context.SaveChangesAsync();
             return Ok(new { Message = "Sửa ví thành công!" });
         }
