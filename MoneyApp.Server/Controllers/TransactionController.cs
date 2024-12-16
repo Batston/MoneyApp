@@ -69,6 +69,56 @@ namespace MoneyApp.Server.Controllers
             return Ok( new { Message = "Thêm giao  dịch thành công!"});
         }
 
+        [HttpPut]
+        [Authorize]
+        public async Task<IActionResult> PutTransaction([FromBody] Transaction newTransaction)
+        {
+            var UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (UserId == null)
+                return Unauthorized(new { Message = "Người dùng không hợp lệ!" });
+
+            int userId = int.Parse(UserId);
+
+            var transaction = await _context.Transactions.FirstOrDefaultAsync(t => t.TransactionID == newTransaction.TransactionID);
+
+            if (transaction == null)
+                return NotFound(new { Message = "Giao dịch không tồn tại!" });
+
+            var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.WalletID == transaction.WalletID);
+
+            if (wallet == null)
+                return StatusCode(403, new { Message = "Ví không tồn tại!" });
+
+            if (newTransaction.Amount < 1000)
+                return BadRequest(new { Message = "Giao dịch phải lớn hơn hoặc bằng 1000 VNĐ" });
+
+            var catagory = await _context.Categories.FirstOrDefaultAsync(c => c.CategoryId == transaction.CategoryID);
+
+            if (catagory == null)
+                return BadRequest(new { Message = "Danh mục không hợp lệ!" });
+
+            if (catagory.Type == "Thu")
+            {
+                wallet.Balance -= transaction.Amount;
+                wallet.Balance += newTransaction.Amount;
+            }
+            else if (catagory.Type == "Chi")
+            {
+                wallet.Balance += transaction.Amount;
+                wallet.Balance -= newTransaction.Amount;    
+            }
+            transaction.Amount = newTransaction.Amount;
+            transaction.Description = newTransaction.Description;
+            transaction.TransactionDate = newTransaction.TransactionDate;
+
+            _context.Transactions.Update(transaction);
+            _context.Wallets.Update(wallet);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { Message = "Sửa giao dịch thành công!" });
+        }
+
         [HttpDelete("{id}")]
         [Authorize]
         public async Task<IActionResult> DeleteTransaction(int id)
@@ -76,7 +126,7 @@ namespace MoneyApp.Server.Controllers
             var UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             int userId = int.Parse(UserId);
-
+          
             if (UserId == null)
                 return Unauthorized(new { Message = "Người dùng không hợp lệ!" });
 
@@ -91,6 +141,7 @@ namespace MoneyApp.Server.Controllers
                 return StatusCode(403, new { Message = "Người dùng không có quyền xóa giao dịch này!" });
 
             isWalletExist.Balance += transaction.Amount;
+            _context.Remove(transaction);
             await _context.SaveChangesAsync();
 
             return Ok(new { Message = "Xóa giao dịch thành công!" });
