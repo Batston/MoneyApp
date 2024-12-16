@@ -77,13 +77,22 @@
               <v-card hover elevation="1">
                 <div class="d-flex align-center" style="border-bottom: 1px solid #00710F; padding-bottom: 8px;">
                   <v-card-title class="mr-auto">Danh sách ví</v-card-title>
-                  <v-btn class="text-right" color="#00710F" style="padding: 8px 16px; margin-right: 16px;" @click="openAddWallet">
+                  <v-btn rounded="lg" class="text-right" color="#00710F" style="padding: 8px 16px; margin-right: 16px;" @click="openAddWallet">
+                    <v-icon left>mdi-plus</v-icon> <!-- Icon nằm bên trái -->
                     Thêm ví
+                  </v-btn>
+                  <v-btn :disabled="this.disablebtn" rounded="lg" class="text-right" color="#00710F" style="padding: 8px 16px; margin-right: 16px;" @click="handleDeleteWallet(this.IdWallet)">
+                    <v-icon left>mdi-delete</v-icon> <!-- Icon nằm bên trái -->
+                    Xóa ví
+                  </v-btn>
+                  <v-btn :disabled="this.disablebtn" rounded="lg" class="text-right" color="#00710F" style="padding: 8px 16px; margin-right: 16px;" @click="updateWallet">
+                    <v-icon left>mdi-wrench</v-icon> <!-- Icon nằm bên trái -->
+                    Sửa ví
                   </v-btn>
                 </div>
                 <v-card-text>
-                  <v-list class="d-flex" style="flex-wrap: wrap;"> <!-- Cho phép các item xếp thành hàng ngang -->
-                    <v-list-item class="d-flex align-center" v-for="wallet in wallets" :key="wallet.walletID" style="margin-right: 16px;">
+                  <v-list ref="walletList" class="d-flex" style="flex-wrap: wrap;"> <!-- Cho phép các item xếp thành hàng ngang -->
+                    <v-list-item class="d-flex align-center" v-for="wallet in wallets" :key="wallet.walletID" style="margin-right: 16px;" @click="selectWallet(wallet)">
                       <div class="d-flex">
                         <v-icon size="x-large" color="#00710F">mdi-wallet</v-icon>
                         <v-list-item-title class="ml-2">{{ wallet.walletName }}</v-list-item-title>
@@ -112,6 +121,22 @@
               </v-card-actions>
             </v-card>
           </v-dialog>
+          <!-- dialog message -->
+          <v-dialog v-model="dialog" max-width="500px">
+            <v-card>
+              <v-card-title class="headline">Thông báo</v-card-title>
+              <v-card-text>
+                <div class="text-center">
+                  <v-icon color="success" size="128">mdi-check-circle-outline</v-icon>
+                  <p class="text-h5 font-weight-bold">{{ dialogMessage }}</p>
+                </div>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="green darken-1" @click="dialog = false">Đóng</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
         </v-container>
       </v-main>
     </v-layout>
@@ -120,7 +145,7 @@
 
 <script>
   import axios from "../utils/axios";
-  import { getWallet, addWallet } from "@/utils/walletApi";
+  import { getWallet, addWallet, deleteWallet, } from "@/utils/walletApi";
   import { getTransactions } from "@/utils/transactionApi";
 
   export default {
@@ -130,6 +155,7 @@
       drawer: false,
       showTotal: true,
       IdNguoiDung: '',
+      IdWallet: '',
       totalAmount: "", // Giả lập số dư tổng cộng
       transactions: [],
       wallets: [],
@@ -139,33 +165,66 @@
         balance: ''
       },
       drawerItems: ["Sổ giao dịch", "Ngân sách", "Tài khoản"],
+      dialog: false,
+      dialogMessage: '',
+      disablebtn: true,
     }),
     mounted() {
       this.fetchTransactions();
       this.fetchWallets();
+      this.$nextTick(() => {
+        document.addEventListener('click', this.handleDocumentClick);
+      });
     },
     methods: {
+      handleDocumentClick(event) {
+        // Kiểm tra xem người dùng có click ra ngoài ví đã chọn không
+        const walletListElement = this.$refs.walletList.$el; 
+        const isClickInside = walletListElement.contains(event.target); // Kiểm tra nếu click bên trong ví
+        if (!isClickInside) {
+          // Nếu không click vào ví, disable nút
+          this.disablebtn = true;
+          console.log("Click ra ngoài, nút đã bị disable");
+        }
+      },
+      beforeDestroy() {
+        // Xóa sự kiện khi component bị hủy
+        document.removeEventListener('click', this.handleDocumentClick);
+      },
       openAddWallet() {
         this.showAddWallet = true;
+      },
+      // chọn ví
+      selectWallet(wallet) {
+        this.disablebtn = false,
+        console.log('Ví đã chọn:', wallet);
+        this.IdWallet = wallet.walletID;
       },
       // Xử lý thêm ví mới
       async handleAddWallet() {
         console.log('Auth token:', localStorage.getItem('auth'));
-
+        
         try {
           if (this.newWallet.name && this.newWallet.balance) {
-            this.newWallet.userId = localStorage.getItem('userId');
-            console.log('newwallet: ',this.newWallet.userId)
+            this.newWallet.userId = this.IdNguoiDung;
+            console.log('newwalletid: ',this.newWallet.userId)
+            console.log('ten vi: ',this.newWallet.name)
+            console.log('so du: ',this.newWallet.balance)
             // Gọi hàm addWallet từ API
-            const response = await addWallet({
+            await addWallet({
               userId: this.newWallet.userId,
               WalletName: this.newWallet.name,
               balance: parseFloat(this.newWallet.balance)
             });
 
             // Nếu thêm ví thành công, thêm vào danh sách và đóng dialog
-            this.wallets.push(response); // Thêm ví mới vào danh sách ví
-            this.dialog = false; // Đóng dialog
+            // this.wallets.push(response); // Thêm ví mới vào danh sách ví
+            // Gọi lại API lấy danh sách ví sau khi thêm thành công
+            await this.fetchWallets();
+            this.dialogMessage = 'Thêm ví thành công!';
+            this.dialog = true;
+
+            this.showAddWallet = false; // Đóng dialog
             this.newWallet.name = '';
             this.newWallet.balance = '';
           } else {
@@ -174,6 +233,27 @@
         } catch (error) {
           console.error('Error adding wallet:', error);
           alert('Có lỗi khi thêm ví. Vui lòng thử lại.');
+        }
+      },
+      // xoa vi
+      async handleDeleteWallet(walletId) {
+        console.log('Auth token:', localStorage.getItem('auth'));
+        
+        try {
+            if (walletId) {
+                // Gọi hàm deleteWallet từ API với walletId
+                await deleteWallet(walletId);
+
+                // Nếu xóa ví thành công, gọi lại API để lấy danh sách ví cập nhật
+                await this.fetchWallets();
+                this.dialogMessage = 'Xóa ví thành công!';
+                this.dialog = true;
+            } else {
+                alert('Không tìm thấy ví để xóa!');
+            }
+        } catch (error) {
+            console.error('Error deleting wallet:', error);
+            alert('Có lỗi khi xóa ví. Vui lòng thử lại.');
         }
       },
       // Lấy danh sách ví
@@ -205,8 +285,6 @@
           console.error("Lỗi khi lấy UserId hoặc dữ liệu giao dịch:", error.response?.data || error.message);
         }
       },
-
-
 
       formatCurrency(amount) {
         return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(amount);

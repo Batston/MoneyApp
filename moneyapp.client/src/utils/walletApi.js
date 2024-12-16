@@ -36,7 +36,7 @@ export const updateWallet = async (walletId, updateWallet) => {
 // Xóa ví
 export const deleteWallet = async (walletId) => {
     try {
-        const response = await instance.delete(`/wallet/${walletId}`);
+        const response = await instance.delete(`/Wallet/${walletId}`);
         return response.data;
     } catch (error) {
         console.error('Error deleting wallet:', error);

@@ -146,13 +146,13 @@
             console.log(response.data);
             localStorage.setItem("auth", response.data.token);
             // this.$router.push('/home'); // Chuyển hướng đến Home
-            // location = "/home";
+            location = "/home";
             // Lấy userId từ token và lưu vào localStorage
-            return axios.get("/User").then((res) => {
-              const userId = res.data.userId;
-              localStorage.setItem("userId", userId);
-              location = "/home"; // Chuyển hướng tới Home
-            });
+            // return axios.get("/User").then((res) => {
+            //   const userId = res.data.userId;
+            //   localStorage.setItem("userId", userId);
+            //   location = "/home"; 
+            // });
           })
           .catch((error) => {
             this.loginError = error.response.data.message;
