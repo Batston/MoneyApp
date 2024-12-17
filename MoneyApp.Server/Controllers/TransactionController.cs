@@ -50,8 +50,8 @@ namespace MoneyApp.Server.Controllers
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if(userId == null)
-                return Unauthorized( new { Message = "Người dùng không hợp lệ!"});
+            if (userId == null)
+                return Unauthorized(new { Message = "Người dùng không hợp lệ!" });
 
             int id = int.Parse(userId);
 
@@ -60,15 +60,20 @@ namespace MoneyApp.Server.Controllers
             if (isWalletExist == null)
                 return NotFound(new { Message = "Người dùng không được thực hiện giao dịch trên ví này!" });
 
-            var isCategoryCorrect = await _context.Categories.FindAsync(transaction.CategoryID);
+            var category = await _context.Categories.FindAsync(transaction.CategoryID);
 
-            if (isCategoryCorrect == null)
+            if (category == null)
                 return BadRequest(new { Message = "Danh mục không hợp lệ!" });
 
-            if (isWalletExist.Balance < transaction.Amount)
+            if (category.Type == "Chi")
+            { 
+               if (isWalletExist.Balance < transaction.Amount)
                 return BadRequest(new { Message = "Số dư ví không đủ để thực hiện giao dịch!" });
-            else 
-                isWalletExist.Balance -= transaction.Amount;
+               else 
+                isWalletExist.Balance -= transaction.Amount; 
+            }
+            else if(category.Type == "Thu")
+                isWalletExist.Balance += transaction.Amount;
 
             await _context.Transactions.AddAsync(transaction);
             await _context.SaveChangesAsync();
