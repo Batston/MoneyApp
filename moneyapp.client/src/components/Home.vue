@@ -12,17 +12,31 @@
       </v-app-bar>
 
       <!-- Navigation Drawer -->
-      <v-navigation-drawer v-model="drawer" :location="$vuetify.display.mobile ? 'bottom' : undefined" temporary>
+      <v-navigation-drawer permanent v-model="drawer" :location="$vuetify.display.mobile ? 'bottom' : undefined" temporary>
         <v-list>
-          <v-list-item v-for="(item, index) in drawerItems" :key="index" @click="onDrawerItemClick(item)">
-            <v-list-item-title>{{ item }}</v-list-item-title>
+          <v-list-item 
+            v-for="(item, index) in drawerItems" 
+            :key="index" 
+            @click="onDrawerItemClick(item)"
+            :class="{'v-list-item--active': isActiveRoute(item.route)}"
+          >
+            <div class="d-flex justify align-center">
+              <v-list-item-icon>
+                <v-icon color="#00710F">{{ item.icon }}</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title class="ma-3">{{ item.title }}</v-list-item-title>
+              </v-list-item-content>
+            </div>
           </v-list-item>
         </v-list>
       </v-navigation-drawer>
 
+
+
       <!-- Main Content -->
       <v-main>
-        <v-container>
+        <v-container fluid style="height: 100%">
           <v-row>
             <!-- Layout 1: Báo cáo thống kê -->
             <v-col cols="12" md="6">
@@ -31,6 +45,7 @@
                 <v-card-text>
                   <!-- Placeholder for chart -->
                   <v-skeleton-loader type="card" />
+                  <!-- <ReportChart></ReportChart> -->
                   <p class="text-center">Biểu đồ sẽ được hiển thị ở đây.</p>
                 </v-card-text>
               </v-card>
@@ -74,20 +89,17 @@
           <!-- Layout 3: Danh sách ví -->
           <v-row>
             <v-col cols="12">
-              <v-card hover elevation="1">
+              <v-card hover elevation="1" style="height: 100%;" class="m-h-full fill-height">
                 <div class="d-flex align-center" style="border-bottom: 1px solid #00710F; padding-bottom: 8px;">
                   <v-card-title class="mr-auto">Danh sách ví</v-card-title>
                   <v-btn rounded="lg" class="text-right" color="#00710F" style="padding: 8px 16px; margin-right: 16px;" @click="openAddWallet">
-                    <v-icon left>mdi-plus</v-icon> <!-- Icon nằm bên trái -->
-                    Thêm ví
+                    <v-icon left>mdi-plus</v-icon> 
                   </v-btn>
                   <v-btn :disabled="this.disablebtn" rounded="lg" class="text-right" color="#00710F" style="padding: 8px 16px; margin-right: 16px;" @click="handleDeleteWallet(this.IdWallet)">
-                    <v-icon left>mdi-delete</v-icon> <!-- Icon nằm bên trái -->
-                    Xóa ví
+                    <v-icon left>mdi-delete</v-icon> 
                   </v-btn>
                   <v-btn :disabled="this.disablebtn" rounded="lg" class="text-right" color="#00710F" style="padding: 8px 16px; margin-right: 16px;" @click="updateWallet">
-                    <v-icon left>mdi-wrench</v-icon> <!-- Icon nằm bên trái -->
-                    Sửa ví
+                    <v-icon left>mdi-wrench</v-icon> 
                   </v-btn>
                 </div>
                 <v-card-text>
@@ -149,10 +161,11 @@
   import { getTransactions } from "@/utils/transactionApi";
 
   export default {
+    components: 'Transacion',
     name: "HomeComponent",
     data: () => ({
       showAddWallet: false,
-      drawer: false,
+      drawer: true,
       showTotal: true,
       IdNguoiDung: '',
       IdWallet: '',
@@ -164,7 +177,12 @@
         name: '',
         balance: ''
       },
-      drawerItems: ["Sổ giao dịch", "Ngân sách", "Tài khoản"],
+      drawerItems: [
+        { title: "Dashboard", icon: "mdi-view-dashboard", route: '/home' },
+        { title: "Sổ giao dịch", icon: "mdi-book", route: '/transaction' },
+        { title: "Ngân sách", icon: "mdi-bank", route: '/budget' },
+        { title: "Tài khoản", icon: "mdi-account", route: '/account' },
+      ],
       dialog: false,
       dialogMessage: '',
       disablebtn: true,
@@ -178,13 +196,15 @@
     },
     methods: {
       handleDocumentClick(event) {
-        // Kiểm tra xem người dùng có click ra ngoài ví đã chọn không
-        const walletListElement = this.$refs.walletList.$el; 
-        const isClickInside = walletListElement.contains(event.target); // Kiểm tra nếu click bên trong ví
-        if (!isClickInside) {
-          // Nếu không click vào ví, disable nút
-          this.disablebtn = true;
-          console.log("Click ra ngoài, nút đã bị disable");
+        // Kiểm tra xem walletList có tồn tại không trước khi truy cập $el
+        const walletListElement = this.$refs.walletList ? this.$refs.walletList.$el : null; 
+        if (walletListElement) {
+          const isClickInside = walletListElement.contains(event.target); // Kiểm tra nếu click bên trong ví
+          if (!isClickInside) {
+            // Nếu không click vào ví, disable nút
+            this.disablebtn = true;
+            console.log("Click ra ngoài, nút đã bị disable");
+          }
         }
       },
       beforeDestroy() {
@@ -293,9 +313,13 @@
         const options = { year: 'numeric', month: 'long', day: 'numeric' };
         return new Date(date).toLocaleDateString('vi-VN', options);
       },
+      // Kiểm tra xem đường dẫn hiện tại có trùng với route của item không
+      isActiveRoute(route) {
+        return this.$route.path === route;
+      },
       onDrawerItemClick(item) {
-        console.log("Clicked on drawer item:", item);
-        // Xử lý điều hướng hoặc hành động tương ứng
+        // Sử dụng Vue Router để điều hướng
+        this.$router.push(item.route);
       },
     },
 }
@@ -304,5 +328,10 @@
 <style scoped>
   .text-center {
     text-align: center;
+  }
+  .v-list-item--active {
+    border-width: 1px;
+    border-color: #00be19 !important;  /* Thêm màu nền khi chọn */
+    color: #000 !important;  /* Thêm màu chữ khi chọn */
   }
 </style>
