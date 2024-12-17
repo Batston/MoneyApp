@@ -2,17 +2,24 @@
   <v-app>
     <v-layout>
       <!-- App Bar -->
-      <v-app-bar color="#00710F" prominent>
+      <v-app-bar color="#00710F" prominent app fixed>
         <v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer" />
-        <v-toolbar-title>
+        <v-toolbar-title class="text-h5 font-weight-bold">
           Tổng cộng: 
           <span v-if="!showTotal">{{ formatCurrency(totalAmount) }}</span>
-          <v-icon @click="showTotal = !showTotal">{{ showTotal ? 'mdi-eye-off' : 'mdi-eye' }}</v-icon>
+          <v-icon 
+            @click="showTotal = !showTotal" 
+            class="ml-2 cursor-pointer"
+            :style="{ transform: showTotal ? 'scale(1.2)' : 'scale(1)' }"
+          >
+            {{ showTotal ? 'mdi-eye-off' : 'mdi-eye' }}
+          </v-icon>
         </v-toolbar-title>
       </v-app-bar>
 
+
       <!-- Navigation Drawer -->
-      <v-navigation-drawer permanent v-model="drawer" :location="$vuetify.display.mobile ? 'bottom' : undefined" temporary>
+      <!-- <v-navigation-drawer permanent v-model="drawer" :location="$vuetify.display.mobile ? 'bottom' : undefined" temporary>
         <v-list>
           <v-list-item 
             v-for="(item, index) in drawerItems" 
@@ -30,7 +37,28 @@
             </div>
           </v-list-item>
         </v-list>
+      </v-navigation-drawer> -->
+      <v-navigation-drawer app permanent v-model="drawer">
+        <v-list dense>
+          <v-list-item
+            v-for="(item, index) in drawerItems"
+            :key="index"
+            @click="onDrawerItemClick(item)"
+            :class="{ 'v-list-item--active': isActiveRoute(item.route) }"
+            class="hoverable"
+          >
+            <div class="d-flex justify align-center">
+              <v-list-item-icon>
+                <v-icon color="#00710F">{{ item.icon }}</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title class="font-weight-bold ma-3">{{ item.title }}</v-list-item-title>
+              </v-list-item-content>
+            </div>
+          </v-list-item>
+        </v-list>
       </v-navigation-drawer>
+
 
 
 
@@ -40,48 +68,47 @@
           <v-row>
             <!-- Layout 1: Báo cáo thống kê -->
             <v-col cols="12" md="6">
-              <v-card hover elevation="1">
-                <v-card-title style="border-bottom: 1px solid #00710F; padding-bottom: 8px;">Báo cáo thống kê</v-card-title>
+              <v-card style="max-height: 300px" class="rounded-lg elevation-2" hover>
+                <v-card-title class="text-h6 font-weight-bold text-primary" style="border-bottom: 1px solid #00710F;">
+                  Báo cáo thống kê
+                </v-card-title>
                 <v-card-text>
-                  <!-- Placeholder for chart -->
-                  <v-skeleton-loader type="card" />
-                  <!-- <ReportChart></ReportChart> -->
-                  <p class="text-center">Biểu đồ sẽ được hiển thị ở đây.</p>
+                  <v-skeleton-loader v-if="!wallets.length || !transactions.length" type="card" class="rounded-lg" />
+                  <div v-else>
+                    <line-chart :chartData="chartData" :chartOptions="chartOptions" />
+                  </div>
                 </v-card-text>
               </v-card>
             </v-col>
 
             <!-- Layout 2: Giao dịch gần đây -->
             <v-col cols="12" md="6">
-              <v-card hover elevation="1">
-                <v-card-title style="border-bottom: 1px solid #00710F; padding-bottom: 8px;">Giao dịch gần đây</v-card-title>
+              <v-card class="rounded-lg elevation-2" hover>
+                <v-card-title class="text-h6 font-weight-bold text-primary" style="border-bottom: 1px solid #00710F;">
+                  Giao dịch gần đây
+                </v-card-title>
                 <v-card-text>
-                  <v-list>
-                    <v-list-item 
+                  <v-list style="max-height: 200px; overflow-y: auto;"> <!-- Cho phép cuộn nếu danh sách dài -->
+                    <v-list-item
                       v-for="transaction in transactions"
                       :key="transaction.transaction.transactionID"
-                      @click="handleTransactionClick(transaction)" 
+                      class="rounded-lg hoverable"
                     >
-                      <v-list-item-content>
-                        <div class="d-flex justify-space-between align-center mt-4">
-                          <!-- Bên trái: Icon và tiêu đề -->
-                          <div>
-                            <div class="d-flex align-center">
-                              <v-icon color="#00710F" size="x-large">mdi-cash</v-icon> 
-                              <v-list-item-title class="text-h6 font-weight-bold ml-2">Tên của categorycategory</v-list-item-title>
-                            </div>
-                            <v-list-item-subtitle>
-                              {{ formatDate(transaction.transaction.transactionDate) }}
-                            </v-list-item-subtitle>
+                      <div class="d-flex justify-space-between align-center">
+                        <div class="d-flex align-center">
+                          <v-icon color="#00710F" size="40">mdi-cash</v-icon>
+                          <div class="ml-3">
+                            <span class="text-h6 font-weight-bold">{{ transaction.transaction.description }}</span>
+                            <div class="text-caption text-grey">{{ formatDate(transaction.transaction.transactionDate) }}</div>
                           </div>
-                          <!-- Bên phải: Giá tiền -->
-                          <strong class="text-right">{{ formatCurrency(transaction.transaction.amount) }}</strong>
                         </div>
-                      </v-list-item-content>
+                        <span class="text-h6 font-weight-bold">{{ formatCurrency(transaction.transaction.amount) }}</span>
+                      </div>
                     </v-list-item>
                   </v-list>
                 </v-card-text>
               </v-card>
+
             </v-col>
 
           </v-row>
@@ -89,42 +116,79 @@
           <!-- Layout 3: Danh sách ví -->
           <v-row>
             <v-col cols="12">
-              <v-card hover elevation="1" style="height: 100%;" class="m-h-full fill-height">
-                <div class="d-flex align-center" style="border-bottom: 1px solid #00710F; padding-bottom: 8px;">
-                  <v-card-title class="mr-auto">Danh sách ví</v-card-title>
-                  <v-btn rounded="lg" class="text-right" color="#00710F" style="padding: 8px 16px; margin-right: 16px;" @click="openAddWallet">
-                    <v-icon left>mdi-plus</v-icon> 
+              <v-card class="rounded-lg elevation-2" hover>
+                <!-- Tiêu đề và Button -->
+                <v-card-title
+                  class="text-h6 font-weight-bold text-primary d-flex align-center"
+                  style="border-bottom: 2px solid #00710F;"
+                >
+                  Danh sách ví
+                  <v-spacer></v-spacer>
+                  <!-- Button thêm ví -->
+                  <v-btn
+                    rounded="lg"
+                    color="#00710F"
+                    class="mr-2"
+                    style="padding: 8px 16px;"
+                    @click="openAddWallet"
+                  >
+                    <v-icon left>mdi-plus</v-icon> Thêm ví
                   </v-btn>
-                  <v-btn :disabled="this.disablebtn" rounded="lg" class="text-right" color="#00710F" style="padding: 8px 16px; margin-right: 16px;" @click="handleDeleteWallet(this.IdWallet)">
-                    <v-icon left>mdi-delete</v-icon> 
+                  <!-- Button xóa ví -->
+                  <v-btn
+                    :disabled="disablebtn"
+                    rounded="lg"
+                    color="#00710F"
+                    class="mr-2"
+                    style="padding: 8px 16px;"
+                    @click="handleDeleteWallet(IdWallet)"
+                  >
+                    <v-icon left>mdi-delete</v-icon> Xóa ví
                   </v-btn>
-                  <v-btn :disabled="this.disablebtn" rounded="lg" class="text-right" color="#00710F" style="padding: 8px 16px; margin-right: 16px;" @click="updateWallet">
-                    <v-icon left>mdi-wrench</v-icon> 
+                  <!-- Button cập nhật ví -->
+                  <v-btn
+                    :disabled="disablebtn"
+                    rounded="lg"
+                    color="#00710F"
+                    style="padding: 8px 16px;"
+                    @click="updateWallet"
+                  >
+                    <v-icon left>mdi-wrench</v-icon> Cập nhật
                   </v-btn>
-                </div>
+                </v-card-title>
+
+                <!-- Danh sách ví -->
                 <v-card-text>
-                  <v-list ref="walletList" class="d-flex" style="flex-wrap: wrap;"> <!-- Cho phép các item xếp thành hàng ngang -->
-                    <v-list-item class="d-flex align-center" v-for="wallet in wallets" :key="wallet.walletID" style="margin-right: 16px;" @click="selectWallet(wallet)">
-                      <div class="d-flex">
-                        <v-icon size="x-large" color="#00710F">mdi-wallet</v-icon>
-                        <v-list-item-title class="ml-2">{{ wallet.walletName }}</v-list-item-title>
-                      </div>
-                      <v-list-item-subtitle class="ml-2">
-                        Số dư: {{ formatCurrency(wallet.balance) }}
-                      </v-list-item-subtitle>
-                    </v-list-item>
-                  </v-list>
+                  <v-row>
+                    <!-- Lặp qua từng ví -->
+                    <v-col v-for="wallet in wallets" :key="wallet.walletID" cols="12" sm="6" md="4">
+                      <v-card
+                        hover
+                        class="rounded-lg text-center pa-3"
+                        @click="selectWallet(wallet)"
+                      >
+                        <!-- Icon ví -->
+                        <v-icon size="50" color="#00710F">mdi-wallet</v-icon>
+                        <!-- Thông tin ví -->
+                        <div class="mt-2">
+                          <h3 class="text-h6 font-weight-bold">{{ wallet.walletName }}</h3>
+                          <p class="text-subtitle1">Số dư: {{ formatCurrency(wallet.balance) }}</p>
+                        </div>
+                      </v-card>
+                    </v-col>
+                  </v-row>
                 </v-card-text>
               </v-card>
+
             </v-col>
           </v-row>
           <!-- Dialog Thêm ví -->
-          <v-dialog v-model="showAddWallet" max-width="500px">
+          <v-dialog v-model="showAddWallet" max-width="500px" transition="dialog-bottom-transition">
             <v-card>
               <v-card-title class="headline">Thêm ví mới</v-card-title>
               <v-card-text>
                 <v-text-field v-model="newWallet.name" label="Tên ví" required></v-text-field>
-                <v-text-field v-model="newWallet.balance" label="Số dư" type="c" required></v-text-field>
+                <v-text-field v-model="newWallet.balance" label="Số dư" type="number" required></v-text-field>
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
@@ -133,6 +197,7 @@
               </v-card-actions>
             </v-card>
           </v-dialog>
+
           <!-- dialog message -->
           <v-dialog v-model="dialog" max-width="500px">
             <v-card>
@@ -156,12 +221,15 @@
 </template>
 
 <script>
+  import LineChart from './LineChart.vue';
   import axios from "../utils/axios";
   import { getWallet, addWallet, deleteWallet, } from "@/utils/walletApi";
   import { getTransactions } from "@/utils/transactionApi";
 
   export default {
-    components: 'Transacion',
+    components: {
+      LineChart
+    },
     name: "HomeComponent",
     data: () => ({
       showAddWallet: false,
@@ -186,6 +254,22 @@
       dialog: false,
       dialogMessage: '',
       disablebtn: true,
+      chartData: {
+        labels: ['Tháng 1', 'Tháng 2', 'Tháng 3'],  // Ví dụ tháng
+        datasets: [
+          {
+            label: 'Tổng số tiền',
+            data: [1000, 2000, 1500],  // Dữ liệu tổng số tiền ví mỗi tháng
+            fill: false,
+            borderColor: '#00710F',
+            tension: 0.1
+          }
+        ]
+      },
+      chartOptions: {
+        responsive: true,
+        maintainAspectRatio: false
+      }
     }),
     mounted() {
       this.fetchTransactions();
@@ -226,6 +310,10 @@
         
         try {
           if (this.newWallet.name && this.newWallet.balance) {
+            if (!Number.isFinite(parseFloat(this.newWallet.balance)) || parseFloat(this.newWallet.balance) < 0) {
+                alert('Số dư phải là một số dương.');
+                return;
+            }
             this.newWallet.userId = this.IdNguoiDung;
             console.log('newwalletid: ',this.newWallet.userId)
             console.log('ten vi: ',this.newWallet.name)
@@ -329,9 +417,23 @@
   .text-center {
     text-align: center;
   }
+  .hoverable:hover {
+  background-color: #E8F5E9;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+  }
   .v-list-item--active {
-    border-width: 1px;
-    border-color: #00be19 !important;  /* Thêm màu nền khi chọn */
-    color: #000 !important;  /* Thêm màu chữ khi chọn */
+    background-color: #A5D6A7 !important;
+    color: #00710F;
+  }
+  body {
+    background-color: #F7FAFC;
+  }
+  .v-card {
+    transition: all 0.3s ease;
+  }
+  .v-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
   }
 </style>
