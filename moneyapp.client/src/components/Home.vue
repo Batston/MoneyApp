@@ -4,13 +4,13 @@
       <!-- App Bar -->
       <v-app-bar color="#00710F" prominent app fixed>
         <v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer" />
-        <v-toolbar-title class="text-h5 font-weight-medium">
+        <v-toolbar-title class="text-h5 font-weight-light">
           Tổng cộng: 
           <span v-if="!showTotal">{{ formatCurrency(totalAmount) }}</span>
           <v-icon 
             @click="showTotal = !showTotal" 
             class="ml-2 cursor-pointer"
-            :style="{ transform: showTotal ? 'scale(1.2)' : 'scale(1)' }"
+            :style="{ transform: showTotal  }"
           >
             {{ showTotal ? 'mdi-eye-off' : 'mdi-eye' }}
           </v-icon>
@@ -52,7 +52,7 @@
                 <v-icon color="#00710F">{{ item.icon }}</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title class="font-weight-medium ma-3">{{ item.title }}</v-list-item-title>
+                <v-list-item-title class="font-weight-light ma-3">{{ item.title }}</v-list-item-title>
               </v-list-item-content>
             </div>
           </v-list-item>
@@ -69,7 +69,7 @@
             <!-- Layout 1: Báo cáo thống kê -->
             <v-col cols="12" md="6">
               <!-- <v-card style="max-height: 300px" class="rounded-lg elevation-2" hover>
-                <v-card-title class="text-h6 font-weight-bold text-primary" style="border-bottom: 1px solid #00710F;">
+                <v-card-title class="text-h6 font-weight-light text-primary" style="border-bottom: 1px solid #00710F;">
                   Báo cáo thống kê
                 </v-card-title>
                 <v-card-text> -->
@@ -120,11 +120,11 @@
             <!-- Layout 2: Giao dịch gần đây -->
             <v-col cols="12" md="6">
               <v-card class="rounded-lg elevation-2" hover>
-                <v-card-title class="text-h6 font-weight-bold text-primary" style="border-bottom: 1px solid #00710F;">
+                <v-card-title class="text-h6 font-weight-medium text-black" style="border-bottom: 1px solid #00710F;">
                   Giao dịch gần đây
                 </v-card-title>
                 <v-card-text>
-                  <v-list style="max-height: 200px; overflow-y: auto;"> <!-- Cho phép cuộn nếu danh sách dài -->
+                  <v-list style="max-height: 244px; overflow-y: auto;"> <!-- Cho phép cuộn nếu danh sách dài -->
                     <v-list-item
                       v-for="transaction in transactions"
                       :key="transaction.transaction.transactionID"
@@ -134,11 +134,11 @@
                         <div class="d-flex align-center">
                           <v-icon color="#00710F" size="40">mdi-cash</v-icon>
                           <div class="ml-3">
-                            <span class="text-h6 font-weight-medium">{{ transaction.transaction.description }}</span>
+                            <span class="text-subtitle">{{ transaction.transaction.description }}</span>
                             <div class="text-caption text-grey">{{ formatDate(transaction.transaction.transactionDate) }}</div>
                           </div>
                         </div>
-                        <span class="text-h6 font-weight-medium">{{ formatCurrency(transaction.transaction.amount) }}</span>
+                        <span class="text-h6 font-weight-light">{{ formatCurrency(transaction.transaction.amount) }}</span>
                       </div>
                     </v-list-item>
                   </v-list>
@@ -155,8 +155,8 @@
               <v-card class="rounded-lg elevation-2" hover>
                 <!-- Tiêu đề và Button -->
                 <v-card-title
-                  class="text-h6 font-weight-bold text-primary d-flex align-center"
-                  style="border-bottom: 2px solid #00710F;"
+                  class="text-h6 font-weight-medium text-black d-flex align-center"
+                  style="border-bottom: 1px solid #00710F;"
                 >
                   Danh sách ví
                   <v-spacer></v-spacer>
@@ -182,7 +182,7 @@
                     <v-icon left>mdi-delete</v-icon>
                   </v-btn>
                   <!-- Button cập nhật ví -->
-                  <v-btn
+                  <!-- <v-btn
                     :disabled="disablebtn"
                     rounded="lg"
                     color="#00710F"
@@ -190,7 +190,7 @@
                     @click="updateWallet"
                   >
                     <v-icon left>mdi-wrench</v-icon>
-                  </v-btn>
+                  </v-btn> -->
                 </v-card-title>
 
                 <!-- Danh sách ví -->
@@ -207,7 +207,7 @@
                         <v-icon size="50" color="#00710F">mdi-wallet</v-icon>
                         <!-- Thông tin ví -->
                         <div class="mt-2">
-                          <h3 class="text-h6 font-weight-medium">{{ wallet.walletName }}</h3>
+                          <h3 class="text-h6 font-weight-light">{{ wallet.walletName }}</h3>
                           <p class="text-subtitle1">Số dư: {{ formatCurrency(wallet.balance) }}</p>
                         </div>
                       </v-card>
@@ -240,7 +240,10 @@
               <v-card-title class="headline">Thông báo</v-card-title>
               <v-card-text>
                 <div class="text-center">
-                  <v-icon color="success" size="128">mdi-check-circle-outline</v-icon>
+                  <!-- Biểu tượng thay đổi dựa trên trạng thái -->
+                  <v-icon :color="dialogType === 'error' ? 'red' : 'success'" size="128">
+                    {{ dialogType === 'error' ? 'mdi-alert-circle-outline' : 'mdi-check-circle-outline' }}
+                  </v-icon>
                   <p class="text-h5 font-weight-bold">{{ dialogMessage }}</p>
                 </div>
               </v-card-text>
@@ -292,11 +295,11 @@
       drawerItems: [
         { title: "Dashboard", icon: "mdi-view-dashboard", route: '/home' },
         { title: "Sổ giao dịch", icon: "mdi-book", route: '/transaction' },
-        { title: "Ngân sách", icon: "mdi-bank", route: '/budget' },
-        { title: "Tài khoản", icon: "mdi-account", route: '/account' },
+        { title: "Tài khoản", icon: "mdi-account", route: '/info' },
       ],
       dialog: false,
       dialogMessage: '',
+      dialogType: "",
       disablebtn: true,
     }),
     mounted() {
@@ -309,6 +312,11 @@
       });
     },
     methods: {
+      showMessage(message, type) {
+        this.dialogMessage = message;
+        this.dialogType = type; // 'success' hoặc 'error'
+        this.dialog = true; // Mở dialog
+      },
       groupTransactionsByDate(transactions) {
         const filteredTransactions = this.filterLast7Days(transactions);
         const grouped = {};
@@ -379,8 +387,7 @@
             // this.wallets.push(response); // Thêm ví mới vào danh sách ví
             // Gọi lại API lấy danh sách ví sau khi thêm thành công
             await this.fetchWallets();
-            this.dialogMessage = 'Thêm ví thành công!';
-            this.dialog = true;
+            this.showMessage('Đã tạo ví thành công!', 'success');
 
             this.showAddWallet = false; // Đóng dialog
             this.newWallet.name = '';
@@ -390,7 +397,7 @@
           }
         } catch (error) {
           console.error('Error adding wallet:', error);
-          alert('Có lỗi khi thêm ví. Vui lòng thử lại.');
+          this.showMessage('Lỗi khi tạo ví', 'error');
         }
       },
       // xoa vi
@@ -404,14 +411,13 @@
 
                 // Nếu xóa ví thành công, gọi lại API để lấy danh sách ví cập nhật
                 await this.fetchWallets();
-                this.dialogMessage = 'Xóa ví thành công!';
-                this.dialog = true;
+                this.showMessage('Đã xóa thành công!', 'success');
             } else {
                 alert('Không tìm thấy ví để xóa!');
             }
         } catch (error) {
             console.error('Error deleting wallet:', error);
-            alert('Có lỗi khi xóa ví. Vui lòng thử lại.');
+            this.showMessage('Lỗi khi xóa ví', 'error');
         }
       },
       // Lấy danh sách ví

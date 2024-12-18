@@ -3,12 +3,19 @@ import LoginComponent from '../components/Login.vue';
 import HomeComponent from '../components/Home.vue';
 import Transaction from '@/components/Transaction.vue';
 import Register from '@/components/Register.vue';
+import User from '@/components/User.vue';
 
 const routes = [
     {
         path: '/register',
         name: 'RegisterComponent',
         component: Register,
+    },
+    {
+        path: '/info',
+        name: 'UserComponent',
+        component: User,
+        meta: { requiresAuth: true }
     },
     {
         path: '/transaction',

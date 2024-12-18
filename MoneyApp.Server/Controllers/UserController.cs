@@ -108,5 +108,29 @@ namespace MoneyApp.Server.Controllers
             _context.SaveChanges();
             return Ok("Sign up success!");
         }
+        [HttpGet("info")]
+        [Authorize]
+        public IActionResult GetUserInfo()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+                return Unauthorized(new { Message = "Chưa xác thực người dùng!" });
+
+            // Tìm người dùng trong cơ sở dữ liệu
+            var user = _context.Users.SingleOrDefault(u => u.UserId.ToString() == userId);
+            if (user == null)
+                return NotFound(new { Message = "User not found!" });
+
+            // Trả về thông tin người dùng (bạn có thể chọn các thuộc tính bạn muốn trả về)
+            var userInfo = new
+            {
+                user.UserId,
+                user.Username,
+                user.FullName,
+                user.Email
+            };
+
+            return Ok(userInfo);
+        }
     }
 }
