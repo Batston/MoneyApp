@@ -1,31 +1,47 @@
 import axios from "axios";
 
-let auth = localStorage.getItem('auth');
-// let userId = localStorage.getItem('userId');
-if (auth == '') location = 'http://localhost:8080/login';
+// URL của trang 
+const page = "http://localhost:8080";
 
 const instance = axios.create({
-    baseURL: 'http://localhost:5039',
-    headers: { Authorization: 'Bearer ' + auth }
+    baseURL: "http://localhost:5039",
 });
 
-instance.interceptors.request.use(function (config) {
-    // Do something before request is sent
-    return config;
-}, function (error) {
-    // Do something with request error
-    return Promise.reject(error);
-});
+// Interceptor để cập nhật Authorization header trước mỗi request
+instance.interceptors.request.use(
+    function (config) {
+        // Lấy token từ localStorage
+        const auth = localStorage.getItem("auth");
 
-// Add a response interceptor
-instance.interceptors.response.use(function (response) {
-    // Any status code that lie within the range of 2xx cause this function to trigger
-    // Do something with response data
-    return response;
-}, function (error) {
-    // Any status codes that falls outside the range of 2xx cause this function to trigger
-    // Do something with response error
-    return Promise.reject(error);
-});
+        // Nếu có token, thêm vào header Authorization
+        if (auth) {
+            config.headers.Authorization = "Bearer " + auth;
+        }
 
-export default instance
+        return config;
+    },
+    function (error) {
+        return Promise.reject(error);
+    }
+);
+
+// Interceptor để xử lý lỗi phản hồi
+instance.interceptors.response.use(
+    function (response) {
+        return response;
+    },
+    function (error) {
+        // Nếu gặp lỗi 401 hoặc 403 (unauthorized/forbidden), chuyển hướng đến trang login
+        if (
+            error.response &&
+            (error.response.status === 401 || error.response.status === 403)
+        ) {
+            if (location.pathname !== "/login") {
+                location.href = `${page}/login`;
+            }
+        }
+        return Promise.reject(error);
+    }
+);
+
+export default instance;
