@@ -4,7 +4,7 @@
       <!-- App Bar -->
       <v-app-bar color="#00710F" prominent app fixed>
         <v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer" />
-        <v-toolbar-title class="text-h5 font-weight-bold">
+        <v-toolbar-title class="text-h5 font-weight-medium">
           Tổng cộng: 
           <span v-if="!showTotal">{{ formatCurrency(totalAmount) }}</span>
           <v-icon 
@@ -52,7 +52,7 @@
                 <v-icon color="#00710F">{{ item.icon }}</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title class="font-weight-bold ma-3">{{ item.title }}</v-list-item-title>
+                <v-list-item-title class="font-weight-medium ma-3">{{ item.title }}</v-list-item-title>
               </v-list-item-content>
             </div>
           </v-list-item>
@@ -68,14 +68,50 @@
           <v-row>
             <!-- Layout 1: Báo cáo thống kê -->
             <v-col cols="12" md="6">
-              <v-card style="max-height: 300px" class="rounded-lg elevation-2" hover>
+              <!-- <v-card style="max-height: 300px" class="rounded-lg elevation-2" hover>
                 <v-card-title class="text-h6 font-weight-bold text-primary" style="border-bottom: 1px solid #00710F;">
                   Báo cáo thống kê
                 </v-card-title>
-                <v-card-text>
-                  <v-skeleton-loader v-if="!wallets.length || !transactions.length" type="card" class="rounded-lg" />
+                <v-card-text> -->
+                  <!-- <v-skeleton-loader v-if="!wallets.length || !transactions.length" type="card" class="rounded-lg" />
                   <div v-else>
                     <line-chart :chartData="chartData" :chartOptions="chartOptions" />
+                  </div> -->
+                  <!-- <v-sparkline
+                    :model-value="value"
+                    color="rgba(255, 255, 255, .7)"
+                    height="100"
+                    padding="24"
+                    stroke-linecap="round"
+                    smooth
+                  >
+                    <template v-slot:label="item">
+                      ${{ item.value }}
+                    </template>
+                  </v-sparkline>
+                </v-card-text>
+              </v-card> -->
+              <v-card class="mx-auto text-center rounded-lg elevation-2" color="green" max-width="600" dark>
+                <v-card-text>
+                  <v-sheet color="rgba(0, 0, 0, .12)">
+                    <v-sparkline
+                      :model-value="value"
+                      color="rgba(255, 255, 255, .7)"
+                      height="100"
+                      padding="24"
+                      stroke-linecap="round"
+                      smooth
+                    >
+                      <template v-slot:label="item">
+                        {{ formatCurrency(item.value) }}
+                      </template>
+                    </v-sparkline>
+                  </v-sheet>
+                </v-card-text>
+
+                <v-card-text>
+                  <div class="text-h4 font-weight-thin">
+                    Giao dịch trong 7 ngày
                   </div>
                 </v-card-text>
               </v-card>
@@ -98,11 +134,11 @@
                         <div class="d-flex align-center">
                           <v-icon color="#00710F" size="40">mdi-cash</v-icon>
                           <div class="ml-3">
-                            <span class="text-h6 font-weight-bold">{{ transaction.transaction.description }}</span>
+                            <span class="text-h6 font-weight-medium">{{ transaction.transaction.description }}</span>
                             <div class="text-caption text-grey">{{ formatDate(transaction.transaction.transactionDate) }}</div>
                           </div>
                         </div>
-                        <span class="text-h6 font-weight-bold">{{ formatCurrency(transaction.transaction.amount) }}</span>
+                        <span class="text-h6 font-weight-medium">{{ formatCurrency(transaction.transaction.amount) }}</span>
                       </div>
                     </v-list-item>
                   </v-list>
@@ -132,7 +168,7 @@
                     style="padding: 8px 16px;"
                     @click="openAddWallet"
                   >
-                    <v-icon left>mdi-plus</v-icon> Thêm ví
+                    <v-icon left>mdi-plus</v-icon>
                   </v-btn>
                   <!-- Button xóa ví -->
                   <v-btn
@@ -143,7 +179,7 @@
                     style="padding: 8px 16px;"
                     @click="handleDeleteWallet(IdWallet)"
                   >
-                    <v-icon left>mdi-delete</v-icon> Xóa ví
+                    <v-icon left>mdi-delete</v-icon>
                   </v-btn>
                   <!-- Button cập nhật ví -->
                   <v-btn
@@ -153,7 +189,7 @@
                     style="padding: 8px 16px;"
                     @click="updateWallet"
                   >
-                    <v-icon left>mdi-wrench</v-icon> Cập nhật
+                    <v-icon left>mdi-wrench</v-icon>
                   </v-btn>
                 </v-card-title>
 
@@ -171,7 +207,7 @@
                         <v-icon size="50" color="#00710F">mdi-wallet</v-icon>
                         <!-- Thông tin ví -->
                         <div class="mt-2">
-                          <h3 class="text-h6 font-weight-bold">{{ wallet.walletName }}</h3>
+                          <h3 class="text-h6 font-weight-medium">{{ wallet.walletName }}</h3>
                           <p class="text-subtitle1">Số dư: {{ formatCurrency(wallet.balance) }}</p>
                         </div>
                       </v-card>
@@ -221,17 +257,25 @@
 </template>
 
 <script>
-  import LineChart from './LineChart.vue';
   import axios from "../utils/axios";
   import { getWallet, addWallet, deleteWallet, } from "@/utils/walletApi";
   import { getTransactions } from "@/utils/transactionApi";
 
   export default {
-    components: {
-      LineChart
-    },
     name: "HomeComponent",
     data: () => ({
+      value: [],
+      transactions11: [
+        { amount: 100, transactionDate: "2024-12-17T18:55:43.69" },
+        { amount: 200, transactionDate: "2024-12-17T20:15:23.50" },
+        { amount: 150, transactionDate: "2024-12-16T12:30:10.00" },
+        { amount: 250, transactionDate: "2024-12-15T08:45:00.00" },
+        { amount: 250, transactionDate: "2024-12-15T08:45:00.00" },
+        { amount: 250, transactionDate: "2024-12-14T08:45:00.00" },
+        { amount: 250, transactionDate: "2024-12-13T08:45:00.00" },
+        { amount: 250, transactionDate: "2024-12-12T08:45:00.00" },
+        { amount: 250, transactionDate: "2024-12-11T08:45:00.00" },
+      ],
       showAddWallet: false,
       drawer: true,
       showTotal: true,
@@ -254,31 +298,37 @@
       dialog: false,
       dialogMessage: '',
       disablebtn: true,
-      chartData: {
-        labels: ['Tháng 1', 'Tháng 2', 'Tháng 3'],  // Ví dụ tháng
-        datasets: [
-          {
-            label: 'Tổng số tiền',
-            data: [1000, 2000, 1500],  // Dữ liệu tổng số tiền ví mỗi tháng
-            fill: false,
-            borderColor: '#00710F',
-            tension: 0.1
-          }
-        ]
-      },
-      chartOptions: {
-        responsive: true,
-        maintainAspectRatio: false
-      }
     }),
     mounted() {
       this.fetchTransactions();
       this.fetchWallets();
       this.$nextTick(() => {
         document.addEventListener('click', this.handleDocumentClick);
+        this.value = this.groupTransactionsByDate(this.transactions); // Nhóm dữ liệu sau khi API trả về
+        console.log("Kết quả nhóm theo ngày:", this.value); // Log kết quả
       });
     },
     methods: {
+      groupTransactionsByDate(transactions) {
+        const filteredTransactions = this.filterLast7Days(transactions);
+        const grouped = {};
+        filteredTransactions.forEach((transaction) => {
+          const date = transaction.transactionDate.split("T")[0];
+          if (!grouped[date]) {
+            grouped[date] = 0;
+          }
+          grouped[date] += transaction.amount;
+        });
+        return Object.values(grouped);
+      },
+      filterLast7Days(transactions) {
+        const now = new Date();
+        return transactions.filter((transaction) => {
+          const date = new Date(transaction.transactionDate);
+          const diff = (now - date) / (1000 * 60 * 60 * 24); // Tính số ngày
+          return diff <= 7; // Chỉ giữ các giao dịch trong 7 ngày
+        });
+      },   
       handleDocumentClick(event) {
         // Kiểm tra xem walletList có tồn tại không trước khi truy cập $el
         const walletListElement = this.$refs.walletList ? this.$refs.walletList.$el : null; 
@@ -383,9 +433,17 @@
 
           if (this.IdNguoiDung) {
             console.log("Fetching transactions for userId:", this.IdNguoiDung);
-            const response = await getTransactions(this.IdNguoiDung); // Gọi API từ transactionApi.js
+            const response = await getTransactions(); // Gọi API từ transactionApi.js
             console.log("Kết quả API:", response);
             this.transactions = response; // Gán kết quả trả về vào danh sách giao dịch
+            this.transactions11 = this.transactions.map(transaction => ({
+              amount: transaction.transaction.amount,
+              transactionDate: transaction.transaction.transactionDate
+            }));
+
+            console.log("transactions11:", this.transactions11); 
+            this.value = this.groupTransactionsByDate(this.transactions11);
+            console.log("value", this.value)
           } else {
             console.error("User ID không tồn tại");
           }

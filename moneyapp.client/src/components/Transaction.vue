@@ -4,7 +4,7 @@
         <!-- App Bar -->
         <v-app-bar color="#00710F" prominent>
           <v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer" />
-          <v-toolbar-title class="text-h5 font-weight-bold">
+          <v-toolbar-title class="text-h5 font-weight-medium">
             Tổng cộng: 
             <span v-if="!showTotal">{{ formatCurrency(totalAmount) }}</span>
             <v-icon 
@@ -52,7 +52,7 @@
                   <v-icon color="#00710F">{{ item.icon }}</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
-                  <v-list-item-title class="font-weight-bold ma-3">{{ item.title }}</v-list-item-title>
+                  <v-list-item-title class="font-weight-medium ma-3">{{ item.title }}</v-list-item-title>
                 </v-list-item-content>
               </div>
             </v-list-item>
