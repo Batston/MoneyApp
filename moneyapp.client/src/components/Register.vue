@@ -20,7 +20,7 @@
           <h2 class="font-weight-bold mt-2" style="color: #00710F;">Money Management</h2>
         </div>
         <div class="text-center mb-4">
-          <h3 class="font-weight-bold">Log In</h3>
+          <h3 class="font-weight-bold">Register</h3>
         </div>
         <v-form>
           <v-text-field
@@ -28,6 +28,15 @@
             label="Username"
             outlined
             dense
+            variant="underlined"
+            class="mb-4"
+          ></v-text-field>
+          <v-text-field
+            v-model="email"
+            label="Email"
+            outlined
+            dense
+            type="email"
             variant="underlined"
             class="mb-4"
           ></v-text-field>
@@ -40,8 +49,17 @@
             type="password"
             class="mb-4"
           ></v-text-field>
-          <v-btn height="48" :loading="isloading" block color="#00710F" elevation="2" class="mb-3" @click="userLogin">
-            LOGIN
+          <v-text-field
+            v-model="confirmPass"
+            label="Confirm your password"
+            outlined
+            dense
+            variant="underlined"
+            type="password"
+            class="mb-4"
+          ></v-text-field>
+          <v-btn height="48" :loading="isloading" block color="#00710F" elevation="2" class="mb-3" @click="registerUser">
+            Register
           </v-btn>
         </v-form>
         <!-- <div class="d-flex justify-space-between">
@@ -49,8 +67,8 @@
           <v-btn text small to="/register" style="color: #00710F;">Register</v-btn>
         </div> -->
         <div class="d-flex justify-center">
-          <p class="small fw-bold mt-2 pt-1 mb-0">Don't have an account? <a style="color: #00710F;" href="#!"
-            class="link-danger" @click="$router.push('/register')">Register</a></p>
+          <p class="small fw-bold mt-2 pt-1 mb-0">Have an account? <a style="color: #00710F;" href="#!"
+            class="link-danger" @click="$router.push('/login')">Login</a></p>
         </div>
         <div v-if="loginError" class="text-center mt-4 mb-2 error--text">{{ loginError }}</div>
       </v-sheet>
@@ -61,69 +79,50 @@
   import axios from "../utils/axios";
   
   export default {
-    name: "LoginComponent",
+    name: "RegisterComponent",
     data: () => ({
-      showRegisterDialog: false,
-      
-      fullname: "",
-      usernameRegister: "",
+      fullname: "tri",
       email: "",
-      passwordRegister: "",
-
       userName: "",
       userPass: "",
+      confirmPass: "",
       loginError: "",
       isloading: false,
     }),
   
     methods: {
-      userLogin() {
-        this.isloading = true
-        setTimeout(() => (this.isloading = false), 3000)
-
-        axios
-          .post("/User/login", {
-            username: this.userName,
-            password: this.userPass,
-          })
-          .then((response) => {
-            console.log(response.data);
-            localStorage.setItem("auth", response.data.token);
-            this.$router.push('/home'); // Chuyển hướng đến Home
-            // location = "/home";
-            // Lấy userId từ token và lưu vào localStorage
-            // return axios.get("/User").then((res) => {
-            //   const userId = res.data.userId;
-            //   localStorage.setItem("userId", userId);
-            //   location = "/home"; 
-            // });
-          })
-          .catch((error) => {
-            this.loginError = error.response.data.message;
-          });
-      },
-      // getUserId() {
-      //   axios.get("/user")
-      //     .then((res) => {
-      //       console.log(res.data.userId);
-      //       localStorage.setItem("userId", res.data.userId);
-      //     })
-      //     .catch((error) => {
-      //       console.error("Lỗi lấy User ID:", error.response?.data || error.message);
-      //     });
-      // },
-      forgotPassword() {
-        console.log("Forgot password clicked");
-      },
       registerUser() {
+        // Kiểm tra các trường đã nhập
+        if (!this.userName || !this.userPass || !this.confirmPass || !this.email) {
+            this.loginError = "Vui lòng nhập đầy đủ thông tin!";
+            return;
+        }
+
+        // Kiểm tra định dạng email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(this.email)) {
+            this.loginError = "Email không hợp lệ!";
+            return;
+        }
+
+        // Kiểm tra xác nhận mật khẩu
+        if (this.userPass !== this.confirmPass) {
+            this.loginError = "Mật khẩu xác nhận không khớp!";
+        return;
+        }
+        this.loginError = "";
         this.isloading = true
         setTimeout(() => (this.isloading = false), 3000)
 
+        console.log(this.fullname);
+        console.log(this.email);
+        console.log(this.userName);
+        console.log(this.userPass);
         axios
           .post("/User/register", {
               "userId": 0,
-              "username": this.usernameRegister, 
-              "passwordHash": this.passwordRegister,
+              "username": this.userName, 
+              "passwordHash": this.userPass,
               "fullName": this.fullname,
               "email": this.email,
           })
