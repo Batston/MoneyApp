@@ -39,23 +39,17 @@
           </v-list>
         </v-navigation-drawer> -->
         <v-navigation-drawer app permanent v-model="drawer">
-          <v-list dense>
+          <v-list density="compact">
             <v-list-item
               v-for="(item, index) in drawerItems"
               :key="index"
-              @click="onDrawerItemClick(item)"
-              :class="{ 'v-list-item--active': isActiveRoute(item.route) }"
+              :prepend-icon="item.icon"
+              :title="item.title"
+              :active="isActiveRoute(item.route)"
+              active-color="#00710F"
               class="hoverable"
-            >
-              <div class="d-flex justify align-center">
-                <v-list-item-icon>
-                  <v-icon color="#00710F">{{ item.icon }}</v-icon>
-                </v-list-item-icon>
-                <v-list-item-content>
-                  <v-list-item-title class="font-weight-light ma-3">{{ item.title }}</v-list-item-title>
-                </v-list-item-content>
-              </div>
-            </v-list-item>
+              @click="onDrawerItemClick(item)"
+            />
           </v-list>
         </v-navigation-drawer>
 
@@ -463,7 +457,7 @@
   };
 </script>
 <style scoped>
-  text-center {
+  .text-center {
     text-align: center;
   }
   .hoverable:hover {

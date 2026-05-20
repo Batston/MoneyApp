@@ -21,6 +21,6 @@ namespace MoneyApp.Server.Models
         public string Email { get; set; }
 
         [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy}")]
-        public DateTime CreatedDate { get; set; } = DateTime.Now;
+        public DateTime? CreatedDate { get; set; } = DateTime.Now;
     }
 }

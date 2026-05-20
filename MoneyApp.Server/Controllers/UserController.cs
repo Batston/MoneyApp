@@ -34,13 +34,6 @@ namespace MoneyApp.Server.Controllers
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginResquest loginResquest)
         {
-            //example: 
-            //
-            //  {
-            //      "username": "string",
-            //      "password": "string"
-            //  }
-            
         var user = _context.Users.SingleOrDefault(u => u.Username == loginResquest.Username);
 
             if (user == null)

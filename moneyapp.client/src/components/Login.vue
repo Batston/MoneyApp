@@ -89,17 +89,15 @@
           .then((response) => {
             console.log(response.data);
             localStorage.setItem("auth", response.data.token);
-            this.$router.push('/home'); // Chuyển hướng đến Home
-            // location = "/home";
-            // Lấy userId từ token và lưu vào localStorage
-            // return axios.get("/User").then((res) => {
-            //   const userId = res.data.userId;
-            //   localStorage.setItem("userId", userId);
-            //   location = "/home"; 
-            // });
+            this.$router.replace("/home");
           })
           .catch((error) => {
-            this.loginError = error.response.data.message;
+            console.log("LOGIN ERROR: ", error.response);
+
+    this.loginError =
+        error.response?.data?.message ||
+        error.response?.data?.errors ||
+        "Đăng nhập thất bại!";
           });
       },
       // getUserId() {
@@ -179,4 +177,3 @@
     text-decoration: underline;
   }
   </style>
-  
